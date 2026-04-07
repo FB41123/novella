@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  reader
+  writer
+  admin // 👈 أضف هذه هنا
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("reader") // reader, writer, admin
+  avatar   String? @db.Text
+  bio       String?
+  language  String   @default("en")
+  theme     String   @default("system")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments   Comment[]
+  novelLikes NovelLike[]
+
+  posts            Post[]
+  postLikes        PostLike[]
+  postComments     PostComment[]
+  novels           Novel[]
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  followers        Follow[]        @relation("Following")
+  following        Follow[]        @relation("Followers")
+  
+  // السطر الجديد الذي أضفناه لربط المستخدم بالروايات المفضلة
+  favoriteNovels   NovelFavorite[] 
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  content   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes     PostLike[]
+  comments  PostComment[]
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model PostComment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Novel {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  coverImage  String?
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  views       Int      @default(0)
+  status      String   @default("ongoing") // ongoing, completed, hiatus
+  tags        String   @default("") // Comma separated tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isPublished Boolean  @default(false)    // 👈 السطر الثاني: حالة النشر (افتراضي
+
+  chapters    Chapter[]
+  characters  Character[]
+  comments   Comment[]
+  novelLikes NovelLike[]
+  
+  // السطر الجديد الذي أضفناه لمعرفة من أعجب بالرواية
+  favoritedBy NovelFavorite[] 
+  originalAuthor String?  // اسم الكاتب الأصلي (إذا كانت الرواية منقولة)
+  sourceUrl      String?  // رابط المصدر (اختياري)
+}
+
+model Chapter {
+  id        String   @id @default(uuid())
+  novelId   String
+  novel     Novel    @relation(fields: [novelId], references: [id])
+  title     String
+  content   String
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Character {
+  id          String   @id @default(uuid())
+  novelId     String
+  novel       Novel    @relation(fields: [novelId], references: [id])
+  name        String
+  description String?
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("Followers", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model SiteSettings {
+  id              String   @id @default(uuid())
+  siteName        String   @default("Novella")
+  description     String?
+  defaultLanguage String   @default("en")
+  values          String   @default("{}") // JSON string for flexible settings
+  updatedAt       DateTime @updatedAt
+}
+
+// ==========================================
+// الجدول الجديد: المفضلة (مكتبة الروايات)
+// ==========================================
+model NovelFavorite {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  novelId   String
+  novel     Novel    @relation(fields: [novelId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, novelId])
+}
+
+// جدول التعليقات
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  
+  userId    String
+  novelId   String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+}
+
+// جدول الإعجابات (اللايكات)
+model NovelLike {
+  id        String   @id @default(uuid())
+  userId    String
+  novelId   String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, novelId]) // لمنع المستخدم من عمل لايك مرتين لنفس الرواية
+}
