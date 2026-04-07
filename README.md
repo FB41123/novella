@@ -27,7 +27,7 @@ Novella is a modern, interactive social platform designed specifically to bridge
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/novella.git](https://github.com/YOUR_USERNAME/novella.git)
+   git clone  https://github.com/FB41123/novella.git
 
 
 Install dependencies:
