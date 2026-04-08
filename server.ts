@@ -20,8 +20,7 @@ import characterRoutes from './src/server/routes/characters';
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 3000;
-
+const PORT = process.env.PORT || 3000;
 async function startServer() {
   const app = express();
   const httpServer = createServer(app);
