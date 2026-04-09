@@ -10,7 +10,7 @@ export function FollowButton({ targetUserId, initialIsFollowing = false }: { tar
     try {
       const token = localStorage.getItem("token"); // نجلب التوكن عشان الباك إند يعرف مين اللي ضغط الزر
       
-      const res = await fetch("http://localhost:3000/api/interactions/follow", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/follow", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

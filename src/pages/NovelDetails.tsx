@@ -53,7 +53,7 @@ export function NovelDetails() {
     setIsFavLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/interactions/favorite", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/favorite", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ novelId: id })
@@ -75,7 +75,7 @@ export function NovelDetails() {
     setIsLikeLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/interactions/like", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/like", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ novelId: id })
@@ -100,7 +100,7 @@ export function NovelDetails() {
     setIsCommentLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/interactions/comment", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/comment", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ novelId: id, content: newComment })

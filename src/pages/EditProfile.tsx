@@ -24,7 +24,7 @@ export function EditProfile() {
     const fetchMyData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:3000/api/users/${user?.id}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${user?.id}`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {
@@ -82,9 +82,9 @@ export function EditProfile() {
         avatar: formData.avatar // سيتم إرساله فقط إذا اخترت صورة
       };
 
-      console.log("جاري الإرسال إلى:", `http://localhost:3000/api/users/${user.id}`);
+      console.log("جاري الإرسال إلى:", `${import.meta.env.VITE_API_URL}/api/users/${user.id}`);
 
-      const res = await fetch(`http://localhost:3000/api/users/${user.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${user.id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",

@@ -86,7 +86,7 @@ export function ManageNovel() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:3000/api/novels/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/novels/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(novelForm)
@@ -109,7 +109,7 @@ export function ManageNovel() {
     try {
       const token = localStorage.getItem("token"); 
       const isEditing = !!chapterForm.id;
-      const url = isEditing ? `http://localhost:3000/api/chapters/${chapterForm.id}` : `http://localhost:3000/api/chapters`;
+      const url = isEditing ? `${import.meta.env.VITE_API_URL}/api/chapters/${chapterForm.id}` : `${import.meta.env.VITE_API_URL}/api/chapters`;
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -141,7 +141,7 @@ export function ManageNovel() {
     try {
       const token = localStorage.getItem("token");
       const isEditing = !!charForm.id;
-      const url = isEditing ? `http://localhost:3000/api/characters/${charForm.id}` : `http://localhost:3000/api/characters`;
+      const url = isEditing ? `${import.meta.env.VITE_API_URL}/api/characters/${charForm.id}` : `${import.meta.env.VITE_API_URL}/api/characters`;
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {
