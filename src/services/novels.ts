@@ -26,7 +26,7 @@ export const createNovel = async (novelData: any) => {
   const token = localStorage.getItem("token");
 
   // 2. إرسال الطلب مع التوكن في "الرأس" (Headers)
-  const res = await fetch("${import.meta.env.VITE_API_URL}/api/novels", {
+  const res = await fetch("https://novella-api.onrender.com/api/novels", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

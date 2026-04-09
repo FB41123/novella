@@ -21,7 +21,7 @@ export function AdminDashboard() {
   const handleTogglePublish = async (novelId: string) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/novels/${novelId}/publish`, {
+      const res = await fetch(`https://novella-api.onrender.com/api/novels/${novelId}/publish`, {
         method: "PATCH",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -42,7 +42,7 @@ export function AdminDashboard() {
       try {
         const token = localStorage.getItem("token"); // جلب بطاقة الهوية
         // استخدام الرابط الجديد الخاص بالمدير
-        const res = await fetch("${import.meta.env.VITE_API_URL}/api/novels/admin/all", {
+        const res = await fetch("https://novella-api.onrender.com/api/novels/admin/all", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {

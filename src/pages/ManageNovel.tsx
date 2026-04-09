@@ -86,7 +86,7 @@ export function ManageNovel() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/novels/${id}`, {
+      const res = await fetch(`https://novella-api.onrender.com/api/novels/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(novelForm)
@@ -109,7 +109,7 @@ export function ManageNovel() {
     try {
       const token = localStorage.getItem("token"); 
       const isEditing = !!chapterForm.id;
-      const url = isEditing ? `${import.meta.env.VITE_API_URL}/api/chapters/${chapterForm.id}` : `${import.meta.env.VITE_API_URL}/api/chapters`;
+      const url = isEditing ? `https://novella-api.onrender.com/api/chapters/${chapterForm.id}` : `https://novella-api.onrender.com/api/chapters`;
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -141,7 +141,7 @@ export function ManageNovel() {
     try {
       const token = localStorage.getItem("token");
       const isEditing = !!charForm.id;
-      const url = isEditing ? `${import.meta.env.VITE_API_URL}/api/characters/${charForm.id}` : `${import.meta.env.VITE_API_URL}/api/characters`;
+      const url = isEditing ? `https://novella-api.onrender.com/api/characters/${charForm.id}` : `https://novella-api.onrender.com/api/characters`;
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {

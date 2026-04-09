@@ -25,12 +25,12 @@ export function Community() {
         const token = localStorage.getItem("token");
         
         // 1. جلب كل المستخدمين
-        const usersRes = await fetch("${import.meta.env.VITE_API_URL}/api/users");
+        const usersRes = await fetch("https://novella-api.onrender.com/api/users");
         let followingIds: string[] = [];
 
         // 2. إذا مسجل دخول، نجلب قائمة الناس اللي نتابعهم من المكتبة
         if (token) {
-          const libraryRes = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/library", {
+          const libraryRes = await fetch("https://novella-api.onrender.com/api/interactions/library", {
             headers: { "Authorization": `Bearer ${token}` }
           });
           if (libraryRes.ok) {
@@ -73,7 +73,7 @@ export function Community() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/follow", {
+      const res = await fetch("https://novella-api.onrender.com/api/interactions/follow", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

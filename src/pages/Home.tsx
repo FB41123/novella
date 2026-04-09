@@ -10,7 +10,7 @@ export function Home() {
   useEffect(() => {
     const fetchNovels = async () => {
       try {
-        const res = await fetch("${import.meta.env.VITE_API_URL}/api/novels");
+        const res = await fetch("https://novella-api.onrender.com/api/novels");
         if (res.ok) {
           const data = await res.json();
           // عرض الروايات المنشورة فقط للجمهور

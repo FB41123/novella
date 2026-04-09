@@ -13,7 +13,7 @@ export function Library() {
     const fetchLibrary = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/library", {
+        const res = await fetch("https://novella-api.onrender.com/api/interactions/library", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         

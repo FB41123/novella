@@ -25,7 +25,7 @@ export function Dashboard() {
         try {
           const token = localStorage.getItem("token");
           // نطلب كل روايات الكاتب الحالي تحديداً (حتى المسودات)
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${user.id}/novels`, {
+          const res = await fetch(`https://novella-api.onrender.com/api/users/${user.id}/novels`, {
             headers: { "Authorization": `Bearer ${token}` }
           });
           
@@ -49,7 +49,7 @@ export function Dashboard() {
   const handleTogglePublish = async (novelId: string, currentStatus: boolean) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/novels/${novelId}/publish`, {
+      const res = await fetch(`https://novella-api.onrender.com/api/novels/${novelId}/publish`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",

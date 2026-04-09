@@ -22,7 +22,7 @@ export function Profile() {
       setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const userRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${id}`, {
+        const userRes = await fetch(`https://novella-api.onrender.com/api/users/${id}`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
 
@@ -122,7 +122,7 @@ export function Profile() {
                     // دالة المتابعة المباشرة
                     try {
                       const token = localStorage.getItem("token");
-                      const res = await fetch("${import.meta.env.VITE_API_URL}/api/interactions/follow", {
+                      const res = await fetch("https://novella-api.onrender.com/api/interactions/follow", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                         body: JSON.stringify({ followingId: profileUser.id })
