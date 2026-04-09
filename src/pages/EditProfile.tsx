@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save, ArrowRight, Loader2, Camera, UserCircle } from "lucide-react";
+import imageCompression from 'browser-image-compression';
 
 export function EditProfile() {
   const { user, login } = useAuth();
@@ -44,25 +45,39 @@ export function EditProfile() {
     if (user?.id) fetchMyData();
   }, [user]);
 
-  // 🚀 السحر هنا: دالة تحويل الصورة المرفوعة إلى نص (Base64)
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // حماية: التأكد أن حجم الصورة ليس عملاقاً (أقل من 3 ميجابايت)
-      if (file.size > 3 * 1024 * 1024) {
-        alert("حجم الصورة كبير جداً! الرجاء اختيار صورة أقل من 3 ميجابايت.");
-        return;
-      }
 
+// ---------------------------------------------------------
+
+  // 🚀 دالة تحويل وضغط الصورة المرفوعة
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // إعدادات الضغط: نصغر الصورة إلى 1 ميجابايت كحد أقصى وبأبعاد مناسبة للويب
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      };
+
+      // أمر الضغط السحري (يتم في جهاز المستخدم قبل الإرسال)
+      const compressedFile = await imageCompression(file, options);
+
+      // بعد الضغط، نحولها إلى نص Base64
       const reader = new FileReader();
       reader.onloadend = () => {
-        // بمجرد انتهاء القراءة، نحفظ النص المشفر للصورة في الـ formData
         setFormData({ ...formData, avatar: reader.result as string });
       };
-      reader.readAsDataURL(file); // أمر تحويل الصورة
+      reader.readAsDataURL(compressedFile);
+
+    } catch (error) {
+      console.error("حدث خطأ أثناء ضغط الصورة:", error);
+      alert("فشل ضغط الصورة، يرجى المحاولة بصورة أخرى.");
     }
   };
 
+  // 🚀 دالة الإرسال للسيرفر
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -70,19 +85,15 @@ export function EditProfile() {
     try {
       const token = localStorage.getItem("token");
       
-      // تأكد من وجود ID المستخدم
       if (!user?.id) {
         throw new Error("لم يتم العثور على معرف المستخدم، يرجى تسجيل الدخول مجدداً.");
       }
 
-      // تجهيز البيانات (نرسل فقط ما نحتاجه)
       const payload = {
         username: formData.username.trim(),
         bio: formData.bio.trim(),
-        avatar: formData.avatar // سيتم إرساله فقط إذا اخترت صورة
+        avatar: formData.avatar 
       };
-
-      console.log("جاري الإرسال إلى:", `https://novella-api.onrender.com/api/users/${user.id}`);
 
       const res = await fetch(`https://novella-api.onrender.com/api/users/${user.id}`, {
         method: "PUT",
@@ -96,17 +107,13 @@ export function EditProfile() {
       const data = await res.json();
 
       if (!res.ok) {
-        // سيظهر لك هنا السبب الحقيقي (مثلاً: الاسم مستخدم، أو مشكلة في السيرفر)
         throw new Error(data.message || "فشل التحديث من جهة السيرفر");
       }
       
-      // تحديث بيانات المستخدم في "السياق" (Context) لكي تتغير الصورة في كل الموقع
-      if (user && user.token) {
-        login(user.token, { ...user, ...data });
-      }
-
+      // ✅ تم حل المشكلة هنا: أزلنا الكود الخاطئ واستبدلناه بإعادة تحميل آمنة
       alert("✅ تم تحديث بياناتك بنجاح!");
       navigate(`/profile/${user.id}`);
+      window.location.reload(); // يجبر المتصفح على جلب الصورة والاسم الجديد وتحديث الشريط العلوي
 
     } catch (error: any) {
       console.error("تفاصيل الخطأ:", error);

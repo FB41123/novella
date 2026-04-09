@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, MessageSquare, Info, ArrowRight, Loader2, UserPlus, CalendarDays, Edit3 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { FollowButton } from "@/components/ui/FollowButton";
+import imageCompression from 'browser-image-compression';
 
 export function Profile() {
   const { id } = useParams();

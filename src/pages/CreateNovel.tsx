@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { BookOpen, ImageIcon, Info, Camera, Loader2, ArrowRight } from "lucide-react";
-
+import imageCompression from 'browser-image-compression';
 export function CreateNovel() {
   const { user } = useAuth();
   const navigate = useNavigate();
