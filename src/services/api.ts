@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// التعديل السحري هنا: دمجنا الرابط مع كلمة /api مباشرة
-const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+// حطينا الرابط المباشر هنا عشان نرتاح من مشاكل المتغيرات تماماً
+const API_URL = "https://novella-api.onrender.com/api";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// هذا هو "السطر السحري" الذي يرفق بطاقة دخولك (Token) مع كل طلب تلقائياً
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
