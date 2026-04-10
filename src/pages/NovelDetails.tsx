@@ -1,27 +1,26 @@
-import { useState, useEffect, FormEvent } from "react";import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, FormEvent } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { getNovelById } from "@/services/novels";
-import { useAuth } from "@/context/AuthContext"; // استيراد للتحقق من المستخدم الحالي
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Clock, Heart, ArrowRight, List, Users, User, MessageSquare, Loader2, BookmarkPlus, BookmarkCheck, ThumbsUp, Send } from "lucide-react";
+import { BookOpen, Clock, Heart, ArrowRight, List, Users, User, MessageSquare, Loader2, BookmarkPlus, BookmarkCheck, ThumbsUp, Send, ExternalLink } from "lucide-react"; // أضفنا أيقونة ExternalLink
 
 export function NovelDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth(); // لمعرفة من هو المستخدم الذي سيعلق
+  const { user } = useAuth(); 
   
   const [novel, setNovel] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("chapters"); 
   
-  // حالات الأزرار التفاعلية
   const [isFavorite, setIsFavorite] = useState(false);
   const [isFavLoading, setIsFavLoading] = useState(false);
   
   const [isLiked, setIsLiked] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
 
-  // حالات التعليقات
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isCommentLoading, setIsCommentLoading] = useState(false);
@@ -30,13 +29,14 @@ export function NovelDetails() {
     const fetchNovel = async () => {
       try {
         if (id) {
-          const data : any =  await getNovelById(id);
+          const data: any = await getNovelById(id);
           setNovel(data);
           setComments(data.comments || []);
           
-          // (اختياري) إذا كان السيرفر يرسل حالة إعجاب/مفضلة المستخدم الحالي، يمكنك تعيينها هنا
-          // setIsFavorite(data.isFavoritedByCurrentUser);
-          // setIsLiked(data.isLikedByCurrentUser);
+          // ✨ ذكاء الكود: إذا كانت الرواية خارجية، نجعل تبويب التعليقات هو الافتراضي
+          if (data.sourceUrl || data.link) {
+            setActiveTab("comments");
+          }
         }
       } catch (error) {
         console.error("خطأ:", error);
@@ -47,7 +47,6 @@ export function NovelDetails() {
     fetchNovel();
   }, [id]);
 
-  // دالة الإضافة/الإزالة من المفضلة (مكتبتي)
   const handleFavorite = async () => {
     if (!user) return alert("❌ يرجى تسجيل الدخول أولاً للإضافة إلى المفضلة.");
     setIsFavLoading(true);
@@ -69,7 +68,6 @@ export function NovelDetails() {
     }
   };
 
-  // دالة الإعجاب (دعم الكاتب)
   const handleLike = async () => {
     if (!user) return alert("❌ يرجى تسجيل الدخول لدعم الكاتب بإعجاب.");
     setIsLikeLoading(true);
@@ -91,7 +89,6 @@ export function NovelDetails() {
     }
   };
 
-  // دالة إرسال التعليق
   const submitComment = async (e: FormEvent) => {
     e.preventDefault();
     if (!user) return alert("❌ يرجى تسجيل الدخول لتتمكن من التعليق.");
@@ -107,8 +104,8 @@ export function NovelDetails() {
       });
       if (res.ok) {
         const savedComment = await res.json();
-        setComments([savedComment, ...comments]); // إضافة التعليق الجديد أعلى القائمة
-        setNewComment(""); // تفريغ الحقل
+        setComments([savedComment, ...comments]); 
+        setNewComment(""); 
       }
     } catch (error) {
       alert("❌ حدث خطأ أثناء إرسال التعليق.");
@@ -122,10 +119,14 @@ export function NovelDetails() {
 
   const sortedChapters = novel.chapters?.sort((a: any, b: any) => a.order - b.order) || [];
   const firstChapter = sortedChapters[0];
+  
+  // ✨ متغير يحدد هل الرواية خارجية أم لا (تأكد أن اسم المتغير يطابق قاعدة بياناتك sourceUrl أو link)
+  const isExternal = !!novel.sourceUrl; 
+  const externalLink = novel.sourceUrl;
 
   return (
     <div className="min-h-screen bg-secondary/5 pb-12">
-      {/* الغلاف العلوي العريض */}
+      {/* الغلاف العلوي */}
       <div className="relative w-full h-64 md:h-80 bg-primary/90 overflow-hidden">
         <div className="absolute inset-0 opacity-30 blur-xl scale-110 bg-center bg-cover" style={{ backgroundImage: `url(${novel.coverImage || novel.cover || "https://via.placeholder.com/300x450?text=No+Cover"})` }} />
         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
@@ -139,14 +140,14 @@ export function NovelDetails() {
       <div className="container mx-auto px-4 max-w-5xl -mt-24 relative z-10">
         <div className="flex flex-col md:flex-row gap-8">
           
-          {/* صورة الغلاف المصغرة */}
+          {/* الغلاف المصغر */}
           <div className="w-48 md:w-64 flex-shrink-0 mx-auto md:mx-0">
             <Card className="overflow-hidden shadow-2xl border-4 border-background rounded-xl">
               <img src={novel.coverImage || novel.cover || "https://via.placeholder.com/300x450?text=No+Cover"} alt={novel.title} className="w-full h-auto object-cover aspect-[2/3]" />
             </Card>
           </div>
 
-          {/* تفاصيل وأزرار الرواية */}
+          {/* تفاصيل الرواية */}
           <div className="flex-1 pt-4 md:pt-28 text-center md:text-right">
             <h1 className="text-3xl md:text-5xl font-black text-primary mb-4 leading-tight">{novel.title}</h1>
             
@@ -156,11 +157,17 @@ export function NovelDetails() {
               <span className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-md border border-green-100"><Clock className="w-4 h-4" /> {novel.status === "completed" ? "مكتملة" : "مستمرة"}</span>
             </div>
 
-            {/* الأزرار التفاعلية العريضة والمنظمة */}
+            {/* الأزرار التفاعلية */}
             <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-3 mt-8">
               
-              {/* زر القراءة */}
-              {firstChapter ? (
+              {/* ✨ تغيير ذكي لزر القراءة: إذا خارجية يحوله للمصدر، وإذا داخلية يقرأ من موقعك */}
+              {isExternal ? (
+                <a href={externalLink} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-all gap-2 h-14 rounded-xl font-bold">
+                    <ExternalLink className="w-5 h-5" /> قراءة من المصدر
+                  </Button>
+                </a>
+              ) : firstChapter ? (
                 <Link to={`/novel/${novel.id}/chapter/${firstChapter.id}`} className="w-full sm:w-auto">
                   <Button size="lg" className="w-full sm:w-auto text-lg px-8 shadow-lg hover:shadow-primary/20 transition-all gap-2 h-14 rounded-xl font-bold">
                     <BookOpen className="w-5 h-5" /> ابدأ القراءة
@@ -171,24 +178,12 @@ export function NovelDetails() {
               )}
 
               <div className="flex gap-3 w-full sm:w-auto">
-                {/* زر المفضلة (مكتبتي) */}
-                <Button 
-                  onClick={handleFavorite}
-                  disabled={isFavLoading}
-                  variant={isFavorite ? "default" : "outline"}
-                  className={`flex-1 sm:flex-none h-14 px-6 gap-2 font-bold rounded-xl shadow-sm transition-all border-primary/20 hover:bg-primary hover:text-white`}
-                >
+                <Button onClick={handleFavorite} disabled={isFavLoading} variant={isFavorite ? "default" : "outline"} className={`flex-1 sm:flex-none h-14 px-6 gap-2 font-bold rounded-xl transition-all border-primary/20`}>
                   {isFavLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isFavorite ? <BookmarkCheck className="w-5 h-5" /> : <BookmarkPlus className="w-5 h-5" />)}
                   <span className="hidden sm:inline">{isFavorite ? "في المكتبة" : "أضف للمكتبة"}</span>
                 </Button>
                 
-                {/* زر الإعجاب (اللايك) */}
-                <Button 
-                  onClick={handleLike}
-                  disabled={isLikeLoading}
-                  variant="outline"
-                  className={`flex-1 sm:flex-none h-14 px-6 gap-2 font-bold rounded-xl shadow-sm transition-all border-red-200 hover:bg-red-50 hover:text-red-600 ${isLiked ? 'bg-red-50 text-red-600 border-red-300' : 'text-muted-foreground'}`}
-                >
+                <Button onClick={handleLike} disabled={isLikeLoading} variant="outline" className={`flex-1 sm:flex-none h-14 px-6 gap-2 font-bold rounded-xl transition-all border-red-200 ${isLiked ? 'bg-red-50 text-red-600' : 'text-muted-foreground'}`}>
                   {isLikeLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />}
                   <span className="hidden sm:inline">{isLiked ? "أعجبتني" : "إعجاب"}</span>
                 </Button>
@@ -197,10 +192,8 @@ export function NovelDetails() {
           </div>
         </div>
 
-        {/* قسم التبويبات (فصول، شخصيات، تعليقات) */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* العمود الجانبي للنبذة */}
           <div className="md:col-span-1 space-y-6">
             <Card className="border-primary/10 shadow-sm bg-card/50">
               <CardContent className="p-6">
@@ -210,24 +203,47 @@ export function NovelDetails() {
             </Card>
           </div>
 
-          {/* العمود الرئيسي للتبويبات */}
           <div className="md:col-span-2 space-y-6">
             
+            {/* ✨ إذا الرواية خارجية، نعرض لافتة فخمة بدل تبويبات الفصول */}
+            {isExternal && (
+              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 text-center shadow-sm mb-6 animate-in fade-in">
+                <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-indigo-50">
+                  <ExternalLink className="w-8 h-8 text-indigo-500" />
+                </div>
+                <h3 className="text-2xl font-black text-indigo-900 mb-2">رواية خارجية مجدولة</h3>
+                <p className="text-indigo-700 font-medium mb-5 max-w-md mx-auto">
+                  هذه الرواية متوفرة في موقع آخر. حرصاً منا على حقوق الكاتب الأصلي، قمنا بتوفير رابط مباشر لتستمتع بقراءتها من مصدرها.
+                </p>
+                <a href={externalLink} target="_blank" rel="noopener noreferrer">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 font-bold rounded-full h-12 shadow-md">
+                    الانتقال للمصدر الآن 🚀
+                  </Button>
+                </a>
+              </div>
+            )}
+
             {/* أزرار التبويبات */}
             <div className="flex flex-wrap gap-2 border-b border-primary/10 pb-3">
-              <Button variant={activeTab === "chapters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("chapters")}>
-                <List className="w-4 h-4" /> الفهرس ({sortedChapters.length})
-              </Button>
-              <Button variant={activeTab === "characters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("characters")}>
-                <Users className="w-4 h-4" /> الشخصيات
-              </Button>
+              {/* ✨ نخفي تبويبات الفصول والشخصيات إذا كانت خارجية */}
+              {!isExternal && (
+                <>
+                  <Button variant={activeTab === "chapters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("chapters")}>
+                    <List className="w-4 h-4" /> الفهرس ({sortedChapters.length})
+                  </Button>
+                  <Button variant={activeTab === "characters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("characters")}>
+                    <Users className="w-4 h-4" /> الشخصيات
+                  </Button>
+                </>
+              )}
+              {/* تبويب التعليقات يظل موجوداً دائماً */}
               <Button variant={activeTab === "comments" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("comments")}>
                 <MessageSquare className="w-4 h-4" /> التعليقات ({comments.length})
               </Button>
             </div>
             
-            {/* محتوى تبويب الفصول */}
-            {activeTab === "chapters" && (
+            {/* محتوى الفصول */}
+            {!isExternal && activeTab === "chapters" && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {sortedChapters.length === 0 ? (
                    <div className="text-center py-10 bg-secondary/10 rounded-xl text-muted-foreground font-medium">لم يقم الكاتب بنشر أي فصول بعد.</div>
@@ -251,8 +267,8 @@ export function NovelDetails() {
               </div>
             )}
             
-            {/* محتوى تبويب الشخصيات */}
-            {activeTab === "characters" && (
+            {/* محتوى الشخصيات */}
+            {!isExternal && activeTab === "characters" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {(!novel.characters || novel.characters.length === 0) ? (
                    <div className="col-span-full text-center py-10 bg-secondary/10 rounded-xl text-muted-foreground font-medium">لا توجد شخصيات مضافة للرواية حتى الآن.</div>
@@ -269,11 +285,9 @@ export function NovelDetails() {
               </div>
             )}
 
-            {/* محتوى تبويب التعليقات الجديد 🚀 */}
+            {/* محتوى التعليقات */}
             {activeTab === "comments" && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                
-                {/* حقل كتابة التعليق */}
                 <Card className="border-primary/10 shadow-sm rounded-xl overflow-hidden">
                   <form onSubmit={submitComment} className="p-1 bg-secondary/5 relative">
                     <textarea 
@@ -292,7 +306,6 @@ export function NovelDetails() {
                   </form>
                 </Card>
 
-                {/* قائمة التعليقات */}
                 <div className="space-y-4">
                   {comments.length === 0 ? (
                     <div className="text-center py-10 bg-secondary/10 rounded-xl text-muted-foreground font-medium">كن أول من يشارك رأيه في هذه الرواية! 💬</div>
@@ -319,7 +332,6 @@ export function NovelDetails() {
                     ))
                   )}
                 </div>
-
               </div>
             )}
 
