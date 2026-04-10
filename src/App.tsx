@@ -23,6 +23,8 @@ import { CreateNovel } from "@/pages/CreateNovel";
 import { ManageNovel } from "./pages/ManageNovel";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { AdminImportNovel } from "./pages/AdminImportNovel";
+import { ExternalNovelDetails } from "./pages/ExternalNovelDetails";
+import { EditExternalNovel } from "./pages/EditExternalNovel"; // بنسوي هذي الصفحة في الخطوة الرابعة
 
 function App() {
   return (
@@ -60,6 +62,9 @@ function App() {
 
                     {/* 🚀 مسارات مشتركة للكتّاب والمدراء (Writer & Admin) */}
                     <Route element={<RoleGuard allowedRoles={['writer', 'admin']} />}>
+                    // ضيف هذي المسارات مع باقي مساراتك
+<Route path="/external-novel/:id" element={<ExternalNovelDetails />} />
+<Route path="/admin/edit-external/:id" element={<EditExternalNovel />} />
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/create-novel" element={<CreateNovel />} />
                     </Route>

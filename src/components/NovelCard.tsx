@@ -7,11 +7,14 @@ import { Eye, Heart } from "lucide-react";
 
 export interface NovelCardProps {
   novel: Novel;
+  sourceUrl?: string | null;
 }
 
 export const NovelCard: React.FC<NovelCardProps> = ({ novel }) => {
   return (
-    <Link to={`/novel/${novel.id}`}>
+    
+    <Link to={novel.sourceUrl ? `/external-novel/${novel.id}` : `/novel/${novel.id}`}>
+
       <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col group">
         <div className="relative aspect-[2/3] overflow-hidden">
           <img
