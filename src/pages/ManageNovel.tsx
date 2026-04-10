@@ -17,7 +17,8 @@ export function ManageNovel() {
 
   // --- مرجع لزر رفع الصورة ---
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user } = useAuth(); // 👈 أضف هذا السطر
+  const { user } = useAuth();
+  
   // --- حالات (States) تعديل الرواية ---
   const [isEditingNovel, setIsEditingNovel] = useState(false);
   const [novelForm, setNovelForm] = useState({ title: "", description: "", tags: "", status: "", coverImage: "" });
@@ -38,6 +39,13 @@ export function ManageNovel() {
       try {
         if (id) {
           const data: any = await getNovelById(id);
+          
+          // 🚀 الحارس الذكي: إذا كانت الرواية خارجية، حوّل المستخدم لصفحتها المخصصة فوراً!
+          if (data.sourceUrl) {
+            navigate(`/admin/edit-external/${id}`);
+            return; // إيقاف تنفيذ باقي الكود هنا
+          }
+
           setNovel(data);
           
           // تعبئة بيانات الرواية في نموذج التعديل
@@ -59,13 +67,12 @@ export function ManageNovel() {
       }
     };
     fetchNovel();
-  }, [id]);
+  }, [id, navigate]);
 
   // ==========================================
   // دوال الحفظ (تتواصل مع السيرفر)
   // ==========================================
 
-  // 🚀 دالة تحويل الصورة المرفوعة إلى نص
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -81,7 +88,6 @@ export function ManageNovel() {
     }
   };
 
-  // حفظ تعديلات الرواية
   const handleUpdateNovel = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -95,15 +101,14 @@ export function ManageNovel() {
       if (!res.ok) throw new Error("فشل في تحديث بيانات الرواية");
       
       const updatedNovel = await res.json();
-      setNovel(updatedNovel); // تحديث العرض بالبيانات الجديدة
-      setIsEditingNovel(false); // إغلاق نموذج التعديل
+      setNovel(updatedNovel); 
+      setIsEditingNovel(false); 
       alert("✅ تم تحديث تفاصيل الرواية بنجاح!");
     } catch (error: any) {
       alert("❌ حدث خطأ: " + error.message);
     }
   };
 
-  // حفظ فصل
   const handleSaveChapter = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -135,7 +140,6 @@ export function ManageNovel() {
     }
   };
 
-  // حفظ شخصية
   const handleSaveCharacter = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -173,11 +177,10 @@ export function ManageNovel() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
      <Button variant="ghost" className="mb-6 gap-2 font-bold" onClick={() => navigate(user?.role === "admin" ? "/admin" : "/dashboard")}>
-  <ArrowRight className="w-4 h-4" /> العودة للوحة التحكم
-</Button>
+       <ArrowRight className="w-4 h-4" /> العودة للوحة التحكم
+     </Button>
 
       <div className="flex flex-col md:flex-row gap-6">
-        {/* القائمة الجانبية */}
         <aside className="w-full md:w-64 space-y-2">
           <Card className="border-primary/20 shadow-sm overflow-hidden mb-4">
             <img src={novel.coverImage || novel.cover || "https://via.placeholder.com/300x450?text=No+Cover"} alt="cover" className="w-full h-48 object-cover" />
@@ -198,7 +201,6 @@ export function ManageNovel() {
           </Button>
         </aside>
 
-        {/* مساحة العمل */}
         <main className="flex-1">
           <Card className="shadow-md border-primary/10 min-h-[500px]">
             <CardHeader className="border-b bg-secondary/5 mb-6">
@@ -210,14 +212,10 @@ export function ManageNovel() {
             </CardHeader>
             <CardContent>
               
-              {/* ======================================= */}
-              {/* تبويب التفاصيل */}
-              {/* ======================================= */}
               {activeTab === "details" && (
                 <div className="space-y-6">
                   {!isEditingNovel ? (
                     <div className="space-y-4 relative">
-                      {/* زر التعديل */}
                       <Button className="absolute top-0 left-0 gap-2" variant="outline" onClick={() => setIsEditingNovel(true)}>
                         <Edit className="w-4 h-4" /> تعديل البيانات
                       </Button>
@@ -235,14 +233,12 @@ export function ManageNovel() {
                       </div>
                     </div>
                   ) : (
-                    /* نموذج تعديل الرواية */
                     <form onSubmit={handleUpdateNovel} className="space-y-4 p-6 border rounded-xl bg-secondary/5">
                       <div className="flex justify-between items-center mb-4 border-b pb-4">
                         <h3 className="font-bold text-xl">تعديل بيانات الرواية</h3>
                         <Button type="button" variant="ghost" onClick={() => setIsEditingNovel(false)}><X className="w-5 h-5" /></Button>
                       </div>
 
-                      {/* 🖼️ قسم رفع الغلاف الجديد */}
                       <div className="flex flex-col items-center justify-center space-y-4 py-4 border-b border-primary/10">
                         <Label className="text-lg font-bold text-primary self-start">الغلاف الحالي</Label>
                         
@@ -323,14 +319,10 @@ export function ManageNovel() {
                 </div>
               )}
 
-              {/* ======================================= */}
-              {/* تبويب الفصول */}
-              {/* ======================================= */}
               {activeTab === "chapters" && (
                 <div className="space-y-6">
                   {!showChapterForm ? (
                     <>
-                      {/* قائمة الفصول */}
                       <div className="flex justify-between items-center mb-4">
                         <p className="text-muted-foreground">أضف ورتب فصول روايتك هنا.</p>
                         <Button className="gap-2 bg-primary" onClick={() => {
@@ -365,7 +357,6 @@ export function ManageNovel() {
                       )}
                     </>
                   ) : (
-                    /* نموذج إضافة/تعديل الفصل */
                     <form onSubmit={handleSaveChapter} className="space-y-4 p-6 border rounded-xl bg-secondary/5">
                       <div className="flex justify-between items-center mb-4 border-b pb-4">
                         <h3 className="font-bold text-xl">{chapterForm.id ? "تعديل الفصل" : "كتابة فصل جديد"}</h3>
@@ -402,9 +393,6 @@ export function ManageNovel() {
                 </div>
               )}
 
-              {/* ======================================= */}
-              {/* تبويب الشخصيات */}
-              {/* ======================================= */}
               {activeTab === "characters" && (
                 <div className="space-y-6">
                   {!showCharForm ? (
@@ -441,7 +429,6 @@ export function ManageNovel() {
                       )}
                     </>
                   ) : (
-                    /* نموذج إضافة/تعديل الشخصية */
                     <form onSubmit={handleSaveCharacter} className="space-y-4 p-6 border rounded-xl bg-secondary/5">
                       <div className="flex justify-between items-center mb-4 border-b pb-4">
                         <h3 className="font-bold text-xl">{charForm.id ? "تعديل الشخصية" : "إضافة شخصية جديدة"}</h3>
