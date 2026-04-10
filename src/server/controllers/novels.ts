@@ -77,18 +77,32 @@ export const createNovel = async (req: any, res: any) => {
 
 export const updateNovel = async (req: any, res: Response) => {
   const { id } = req.params;
-  const { title, description, coverImage, tags, status } = req.body;
+  
+  // 🚀 التعديل هنا: أضفنا originalAuthor و sourceUrl للبيانات المستلمة
+  const { title, description, coverImage, tags, status, originalAuthor, sourceUrl } = req.body;
+  
   try {
     const novel = await prisma.novel.findUnique({ where: { id } });
     if (!novel) return res.status(404).json({ message: 'Novel not found' });
+    
     if (novel.authorId !== (req.user?.id || req.user) && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
+    // 🚀 التعديل هنا: أضفنا الحقلين لدالة الـ update ليتم حفظهما في الداتا بيس
     const updated = await prisma.novel.update({
       where: { id },
-      data: { title, description, coverImage, tags, status }
+      data: { 
+        title, 
+        description, 
+        coverImage, 
+        tags, 
+        status,
+        originalAuthor, // حفظ اسم الكاتب الجديد
+        sourceUrl       // حفظ الرابط الجديد
+      }
     });
+    
     res.json(updated);
   } catch (error: any) {
     console.error("Error updating novel:", error);

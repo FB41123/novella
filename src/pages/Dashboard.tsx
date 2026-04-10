@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Book, BarChart, Settings, BookOpen, Globe, Lock } from "lucide-react";
+import { Plus, Book, BarChart, Settings, BookOpen, Globe, Lock, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -19,12 +19,8 @@ export function Dashboard() {
   useEffect(() => {
     const fetchMyNovels = async () => {
       if (user) {
-        // بما أننا عدلنا الباك اند ليرجع المنشورة فقط في الرئيسية
-        // نحن نحتاج لطلب "كل روايات الكاتب" من السيرفر (منشورة ومسودة)
-        // إذا كان getNovels() العادية لا تجلب المسودات، سنستخدم هذا الطلب المباشر للوحة التحكم:
         try {
           const token = localStorage.getItem("token");
-          // نطلب كل روايات الكاتب الحالي تحديداً (حتى المسودات)
           const res = await fetch(`https://novella-api.onrender.com/api/users/${user.id}/novels`, {
             headers: { "Authorization": `Bearer ${token}` }
           });
@@ -33,7 +29,6 @@ export function Dashboard() {
              const data = await res.json();
              setMyNovels(data);
           } else {
-             // احتياطياً لو لم يكن المسار موجوداً، نستخدم الدالة القديمة
              const allNovels = await getNovels();
              setMyNovels(allNovels.filter((n: any) => n.authorId === user.id));
           }
@@ -45,7 +40,6 @@ export function Dashboard() {
     fetchMyNovels();
   }, [user]);
 
-  // 🚀 السحر هنا: دالة النشر والإخفاء السريعة
   const handleTogglePublish = async (novelId: string, currentStatus: boolean) => {
     try {
       const token = localStorage.getItem("token");
@@ -55,17 +49,16 @@ export function Dashboard() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}` 
         },
-        body: JSON.stringify({ isPublished: !currentStatus }) // نعكس الحالة
+        body: JSON.stringify({ isPublished: !currentStatus }) 
       });
 
       if (res.ok) {
-        // تحديث الرواية في الشاشة فوراً ليتغير لون الزر والشارة
         setMyNovels(prev => prev.map(novel => 
           novel.id === novelId ? { ...novel, isPublished: !currentStatus } : novel
         ));
         alert(!currentStatus ? "🌍 تم نشر الرواية للجمهور بنجاح!" : "🔒 تمت إعادة الرواية كمسودة سرية.");
       } else {
-        alert("❌ حدث خطأ، تأكد من تعديل ملفات السيرفر كما اتفقنا سابقاً.");
+        alert("❌ حدث خطأ، تأكد من تعديل ملفات السيرفر.");
       }
     } catch (error) {
       console.error(error);
@@ -129,7 +122,6 @@ export function Dashboard() {
                   <Card key={novel.id} className="flex flex-col sm:flex-row overflow-hidden shadow-md hover:shadow-lg transition-all border-primary/10 group">
                     <div className="w-full sm:w-48 h-64 sm:h-auto bg-muted flex-shrink-0 border-r relative">
                       <img src={novel.coverImage || novel.cover || "https://via.placeholder.com/300x450?text=No+Cover"} alt={novel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      {/* 🚀 شارة النشر فوق الصورة */}
                       <div className="absolute top-3 right-3">
                          <span className={`px-3 py-1.5 rounded-full text-xs font-black shadow-lg flex items-center gap-1 backdrop-blur-md ${
                            novel.isPublished ? "bg-green-500/90 text-white" : "bg-yellow-500/90 text-white"
@@ -159,11 +151,21 @@ export function Dashboard() {
                       
                       {/* الأزرار الديناميكية */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 border-t border-border/50 pt-5">
-                        <Link to={`/manage-novel/${novel.id}`} className="col-span-1">
-                          <Button className="w-full gap-2 shadow-sm font-bold">
-                            <Settings className="w-4 h-4" /> إدارة الفصول
-                          </Button>
-                        </Link>
+                        
+                        {/* 🚀 الرابط الذكي: يقرر إذا يودي لصفحة الفصول أو صفحة التعديل الخارجية */}
+                        {novel.sourceUrl ? (
+                          <Link to={`/admin/edit-external/${novel.id}`} className="col-span-1">
+                            <Button className="w-full gap-2 shadow-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white">
+                              <Edit className="w-4 h-4" /> تعديل البيانات
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Link to={`/manage-novel/${novel.id}`} className="col-span-1">
+                            <Button className="w-full gap-2 shadow-sm font-bold">
+                              <Settings className="w-4 h-4" /> إدارة الفصول
+                            </Button>
+                          </Link>
+                        )}
                         
                         <Link to={`/novel/${novel.id}`} className="col-span-1">
                           <Button variant="outline" className="w-full gap-2 border-primary/20 hover:bg-primary/5 font-bold">
@@ -171,7 +173,6 @@ export function Dashboard() {
                           </Button>
                         </Link>
 
-                        {/* 🚀 زر النشر السحري */}
                         <Button 
                            onClick={() => handleTogglePublish(novel.id, novel.isPublished)}
                            variant={novel.isPublished ? "outline" : "default"}
