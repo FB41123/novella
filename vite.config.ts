@@ -23,12 +23,12 @@ export default defineConfig(({mode}) => {
           display: 'standalone',              // عشان يفتح كأنه تطبيق بدون شريط متصفح
           icons: [
             {
-              src: 'pwa-192x192.png',         // 👈 3. اسم الصورة الأولى
+              src: '/pwa-192x192.png',         // 👈 3. اسم الصورة الأولى
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: 'pwa-512x512.png',         // 👈 4. اسم الصورة الثانية عالية الدقة
+              src: '/pwa-512x512.png',         // 👈 4. اسم الصورة الثانية عالية الدقة
               sizes: '512x512',
               type: 'image/png'
             }
