@@ -29,7 +29,7 @@ async function startServer() {
   // 1. إعداد الـ CORS الذكي: يقبل اللوكال هوست والروابط المحددة فقط
   const corsOptions = {
     origin: function (origin: any, callback: any) {
-      const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL];
+      const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://novella-seven.vercel.app', process.env.FRONTEND_URL];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
