@@ -224,20 +224,20 @@ export function NovelDetails() {
             )}
 
             {/* أزرار التبويبات */}
-            <div className="flex flex-wrap gap-2 border-b border-primary/10 pb-3">
+            <div className="flex overflow-x-auto gap-2 border-b border-primary/10 pb-3 no-scrollbar snap-x">
               {/* ✨ نخفي تبويبات الفصول والشخصيات إذا كانت خارجية */}
               {!isExternal && (
                 <>
-                  <Button variant={activeTab === "chapters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("chapters")}>
+                  <Button variant={activeTab === "chapters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold whitespace-nowrap snap-start shrink-0" onClick={() => setActiveTab("chapters")}>
                     <List className="w-4 h-4" /> الفهرس ({sortedChapters.length})
                   </Button>
-                  <Button variant={activeTab === "characters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("characters")}>
+                  <Button variant={activeTab === "characters" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold whitespace-nowrap snap-start shrink-0" onClick={() => setActiveTab("characters")}>
                     <Users className="w-4 h-4" /> الشخصيات
                   </Button>
                 </>
               )}
               {/* تبويب التعليقات يظل موجوداً دائماً */}
-              <Button variant={activeTab === "comments" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold" onClick={() => setActiveTab("comments")}>
+              <Button variant={activeTab === "comments" ? "default" : "ghost"} className="gap-2 rounded-xl font-bold whitespace-nowrap snap-start shrink-0" onClick={() => setActiveTab("comments")}>
                 <MessageSquare className="w-4 h-4" /> التعليقات ({comments.length})
               </Button>
             </div>

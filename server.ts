@@ -3,6 +3,8 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 // استيراد مسارات الـ API
 import interactionRoutes from './src/server/routes/interactions';
@@ -24,10 +26,11 @@ async function startServer() {
   const app = express();
   const httpServer = createServer(app);
   
-  // 1. إعداد الـ CORS الذكي: يقبل اللوكال هوست + أي رابط من Vercel
+  // 1. إعداد الـ CORS الذكي: يقبل اللوكال هوست والروابط المحددة فقط
   const corsOptions = {
     origin: function (origin: any, callback: any) {
-      if (!origin || origin.includes('localhost') || origin.includes('vercel.app')) {
+      const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL];
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -41,8 +44,18 @@ async function startServer() {
   setupSockets(io);
   app.use(cors(corsOptions));
 
-  app.use(express.json({ limit: '50mb' })); 
-  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  // Security middlewares
+  app.use(helmet());
+  
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+  });
+  app.use('/api', limiter);
+
+  app.use(express.json({ limit: '2mb' })); 
+  app.use(express.urlencoded({ limit: '2mb', extended: true }));
 
   // 2. مسارات الـ API
   app.use('/api/auth', authRoutes);

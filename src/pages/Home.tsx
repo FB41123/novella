@@ -29,12 +29,12 @@ export function Home() {
     <div className="container mx-auto px-4 md:px-8 py-6 md:py-10 animate-in fade-in duration-500">
       
       {/* 🌟 قسم الترحيب (Hero Section) - متجاوب مع الشاشات */}
-      <div className="text-center max-w-4xl mx-auto mb-10 md:mb-16 space-y-4 md:space-y-6 bg-gradient-to-b from-primary/10 to-transparent p-6 md:p-12 rounded-[2rem] border border-primary/5 shadow-sm">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 drop-shadow-sm leading-tight">
-          <BookOpen className="w-12 h-12 md:w-16 md:h-16 text-primary mb-2 sm:mb-0" />
+      <div className="text-center max-w-4xl mx-auto mb-8 md:mb-16 space-y-3 md:space-y-6 bg-gradient-to-b from-primary/10 to-transparent p-5 md:p-12 rounded-3xl md:rounded-[2rem] border border-primary/5 shadow-sm mx-2 md:mx-0">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 drop-shadow-sm leading-tight">
+          <BookOpen className="w-10 h-10 md:w-16 md:h-16 text-primary mb-1 sm:mb-0" />
           مرحباً بك في Novella
         </h1>
-        <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto px-2">
+        <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto px-2">
           اكتشف أروع الروايات، وعش مغامرات لا تُنسى في عوالم خيالية صُنعت خصيصاً لك.
         </p>
       </div>
@@ -55,10 +55,10 @@ export function Home() {
           <p className="text-sm md:text-base text-muted-foreground">الكتّاب والإدارة يعملون بشغف على تجهيز القصص، عُد قريباً! ✨</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 px-1 md:px-0">
           {novels.map((novel) => (
             <Link key={novel.id} to={novel.sourceUrl ? `/external-novel/${novel.id}` : `/novel/${novel.id}`}>
-              <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 border-primary/10 group cursor-pointer h-full flex flex-col bg-card rounded-xl md:rounded-2xl">
+              <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 border-primary/10 group cursor-pointer h-full flex flex-col bg-card rounded-lg md:rounded-2xl">
                 
                 {/* الغلاف */}
                 <div className="aspect-[2/3] w-full relative overflow-hidden bg-secondary/10">
@@ -76,14 +76,14 @@ export function Home() {
                 </div>
 
                 {/* تفاصيل الرواية */}
-                <CardContent className="p-3 md:p-5 flex-1 flex flex-col justify-between">
+                <CardContent className="p-2 md:p-5 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-black text-base md:text-lg lg:text-xl text-primary mb-1 md:mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors" title={novel.title}>{novel.title}</h3>
-                    <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4 line-clamp-2 leading-snug md:leading-relaxed">{novel.description}</p>
+                    <h3 className="font-black text-sm md:text-lg lg:text-xl text-primary mb-1 md:mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors" title={novel.title}>{novel.title}</h3>
+                    <p className="text-[11px] md:text-sm text-muted-foreground mb-2 md:mb-4 line-clamp-2 leading-tight md:leading-relaxed">{novel.description}</p>
                   </div>
                   
                   {/* اسم الكاتب / المصدر */}
-                  <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs font-bold text-muted-foreground bg-secondary/20 p-2 md:p-2.5 rounded-md md:rounded-lg border border-primary/5 mt-auto">
+                  <div className="flex items-center gap-1 md:gap-2 text-[9px] md:text-xs font-bold text-muted-foreground bg-secondary/20 p-1.5 md:p-2.5 rounded md:rounded-lg border border-primary/5 mt-auto">
                     {novel.originalAuthor ? (
                       <><Globe className="w-3 h-3 md:w-4 md:h-4 text-blue-500 flex-shrink-0" /> <span className="truncate">{novel.originalAuthor}</span></>
                     ) : (

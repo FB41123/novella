@@ -63,6 +63,8 @@ model PostLike {
   createdAt DateTime @default(now())
 
   @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
 }
 
 model PostComment {
@@ -73,6 +75,9 @@ model PostComment {
   user      User     @relation(fields: [userId], references: [id])
   content   String
   createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@index([userId])
 }
 
 model Novel {
@@ -109,6 +114,8 @@ model Chapter {
   order     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([novelId])
 }
 
 model Character {
@@ -162,6 +169,8 @@ model NovelFavorite {
   createdAt DateTime @default(now())
 
   @@unique([userId, novelId])
+  @@index([userId])
+  @@index([novelId])
 }
 
 // جدول التعليقات
@@ -175,6 +184,9 @@ model Comment {
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  @@index([novelId])
+  @@index([userId])
 }
 
 // جدول الإعجابات (اللايكات)
@@ -187,4 +199,6 @@ model NovelLike {
   novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
   @@unique([userId, novelId]) // لمنع المستخدم من عمل لايك مرتين لنفس الرواية
+  @@index([userId])
+  @@index([novelId])
 }
