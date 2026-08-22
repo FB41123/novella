@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Book, BarChart, Settings, BookOpen, Globe, Lock, Edit, Menu, X } from "lucide-react"; // أضفنا Menu و X
+import { Plus, Book, BarChart, Settings, BookOpen, Globe, Lock, Edit, Menu, X, Trash2 } from "lucide-react"; // أضفنا Menu و X و Trash2
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -65,6 +65,27 @@ export function Dashboard() {
     } catch (error) {
       console.error(error);
       alert("❌ حدث خطأ في الاتصال بالسيرفر");
+    }
+  };
+
+  const handleDeleteNovel = async (novelId: string) => {
+    if (window.confirm("هل أنت متأكد أنك تريد حذف هذه الرواية نهائياً؟ هذا الإجراء لا يمكن التراجع عنه!")) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`https://novella-api.onrender.com/api/novels/${novelId}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setMyNovels(prev => prev.filter(n => n.id !== novelId));
+          alert("🗑️ تم حذف الرواية بنجاح.");
+        } else {
+          alert("❌ حدث خطأ أثناء محاولة الحذف.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("❌ حدث خطأ في الاتصال بالسيرفر");
+      }
     }
   };
 
@@ -218,7 +239,7 @@ export function Dashboard() {
                            className={`col-span-1 gap-2 font-bold shadow-sm transition-all ${
                              !novel.isPublished 
                                ? 'bg-green-600 hover:bg-green-700 text-white' 
-                               : 'border-red-200 text-red-600 hover:bg-red-50'
+                               : 'border-yellow-200 text-yellow-600 hover:bg-yellow-50'
                            }`}
                         >
                            {novel.isPublished ? (
@@ -226,6 +247,14 @@ export function Dashboard() {
                            ) : (
                              <><Globe className="w-4 h-4"/> نشر</>
                            )}
+                        </Button>
+
+                        <Button 
+                           onClick={() => handleDeleteNovel(novel.id)}
+                           variant="outline"
+                           className="col-span-1 sm:col-span-3 mt-2 gap-2 font-bold shadow-sm transition-all border-red-200 text-red-600 hover:bg-red-50"
+                        >
+                           <Trash2 className="w-4 h-4"/> حذف الرواية نهائياً
                         </Button>
                       </div>
                     </div>

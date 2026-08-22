@@ -34,7 +34,7 @@ export const register = async (req: Request, res: Response) => {
       }
     });
 
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
     res.status(201).json({ user: { id: user.id, username: user.username, email: user.email, role: user.role }, token });
   } catch (error: any) {
@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'بيانات الدخول غير صحيحة' });
     }
 
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
     res.json({ user: { id: user.id, username: user.username, email: user.email, role: user.role, avatar: user.avatar }, token });
   } catch (error: any) {

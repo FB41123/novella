@@ -39,9 +39,15 @@ export function Profile() {
         if (userData.role !== 'writer') setActiveTab("posts");
 
         if (userData.role === 'writer') {
-          const allNovels = await getNovels();
-          const hisNovels = allNovels.filter((n: any) => n.authorId === id);
-          setUserNovels(hisNovels);
+          const novelsRes = await fetch(`https://novella-api.onrender.com/api/users/${id}/novels`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (novelsRes.ok) {
+            const hisNovels = await novelsRes.json();
+            setUserNovels(hisNovels);
+          } else {
+            setUserNovels([]);
+          }
         }
       } catch (error) {
         console.error("خطأ:", error);
