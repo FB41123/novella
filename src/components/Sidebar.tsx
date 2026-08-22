@@ -22,21 +22,6 @@ export function Sidebar() {
   const { t } = useTranslation();
   const location = useLocation();
   
-  // 🚀 حالة فتح وإغلاق القائمة في الجوال
-  const [isOpen, setIsOpen] = useState(false);
-
-  // 🚀 الاستماع لزر الثلاث خطوط اللي في الهيدر
-  useEffect(() => {
-    const handleToggle = () => setIsOpen((prev) => !prev);
-    window.addEventListener('toggleMobileMenu', handleToggle);
-    return () => window.removeEventListener('toggleMobileMenu', handleToggle);
-  }, []);
-
-  // 🚀 إغلاق القائمة تلقائياً بمجرد اختيار صفحة (الانتقال لرابط جديد)
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location.pathname]);
-
   if (!user) return null;
 
   const isActive = (path: string) => location.pathname === path;
@@ -61,27 +46,8 @@ export function Sidebar() {
 
   return (
     <>
-      {/* 🚀 الخلفية الشفافة (Overlay) تظهر في الجوال خلف القائمة */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 z-[60] md:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      {/* 🚀 القائمة الجانبية (متجاوبة: تنزلق في الجوال، وثابتة في الكمبيوتر) */}
-      <aside className={cn(
-        "fixed md:sticky top-0 md:top-16 right-0 md:right-auto z-[70] md:z-0 flex flex-col w-64 border-l md:border-l-0 md:border-r bg-card h-screen md:h-[calc(100vh-4rem)] transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none",
-        isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"
-      )}>
-        
-        {/* رأس القائمة في الجوال (يحتوي على اسم الموقع وزر الإغلاق) */}
-        <div className="flex md:hidden items-center justify-between p-4 border-b">
-          <span className="font-black text-primary text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">Novella</span>
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-            <X className="w-6 h-6 text-muted-foreground" />
-          </Button>
-        </div>
+      {/* 🚀 القائمة الجانبية (مخفية في الجوال، ثابتة في الكمبيوتر) */}
+      <aside className="hidden md:flex flex-col w-64 border-r bg-card sticky top-16 h-[calc(100vh-4rem)] z-0">
 
         {/* محتوى القائمة (الأزرار) */}
         <div className="p-4 flex-1 overflow-y-auto">

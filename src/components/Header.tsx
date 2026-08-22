@@ -20,11 +20,7 @@ export function Header() {
         
         {/* 🌟 القسم الأيمن (الشعار والقائمة) */}
         <div className="flex items-center gap-2 md:gap-4">
-          {/* زر القائمة الجانبية العامة (يظهر في الجوال) */}
-        <Button variant="ghost" size="icon" className="md:hidden w-8 h-8 sm:w-10 sm:h-10" onClick={() => window.dispatchEvent(new Event('toggleMobileMenu'))}>
-  <Menu className="h-5 w-5 text-primary" />
-</Button>
-          
+
           <Link to="/" className="flex items-center gap-1.5 md:gap-2 font-black text-lg md:text-xl hover:opacity-80 transition-opacity">
             <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-primary" />
             {/* الشعار يختفي في الشاشات الصغيرة جداً ويبقى الرمز فقط */}

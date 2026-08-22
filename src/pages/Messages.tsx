@@ -1,31 +1,30 @@
-import { MessageSquareDashed, Wrench } from "lucide-react";
+import { MessageCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export function Messages() {
-  const navigate = useNavigate();
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-6 animate-in fade-in zoom-in duration-500 px-4">
-      <div className="relative">
-        <MessageSquareDashed className="w-32 h-32 text-primary/10" />
-        <Wrench className="w-12 h-12 text-primary absolute bottom-0 right-0 animate-bounce shadow-lg rounded-full bg-background p-1" />
+    <div className="container mx-auto py-20 px-4 max-w-4xl flex flex-col items-center justify-center text-center animate-in fade-in duration-700 min-h-[60vh]">
+      <div className="relative mb-8">
+        <div className="absolute -inset-4 bg-primary/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center relative border border-primary/20">
+          <MessageCircle className="w-12 h-12 text-primary" />
+          <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-background rounded-full flex items-center justify-center border shadow-sm">
+            <Clock className="w-5 h-5 text-muted-foreground" />
+          </div>
+        </div>
       </div>
       
-      <h1 className="text-4xl md:text-5xl font-black text-primary drop-shadow-sm">نظام المراسلة الخاص</h1>
-      
-      <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-        نعمل حالياً على بناء نظام محادثات فوري ومتطور يتيح لك التواصل المباشر مع كُتّابك المفضلين وأصدقائك في المنصة. 🚀
+      <h1 className="text-4xl font-black mb-4 text-foreground tracking-tight">المراسلة <span className="text-primary">قريباً</span></h1>
+      <p className="text-muted-foreground text-lg mb-10 max-w-md leading-relaxed">
+        نعمل بجهد لتوفير نظام مراسلة فوري وحيوي للتواصل مع أصدقائك وكتابك المفضلين. كُن بالجوار! ✨
       </p>
       
-      <div className="pt-4 flex gap-4">
-        <Button disabled variant="outline" className="font-bold rounded-xl h-12 px-6 border-primary/20 bg-primary/5">
-          قريباً جداً ⏳
-        </Button>
-        <Button onClick={() => navigate("/")} className="font-bold rounded-xl h-12 px-6 shadow-md hover:shadow-lg transition-all">
+      <Link to="/">
+        <Button size="lg" className="rounded-full shadow-lg hover:shadow-xl transition-all px-8 font-bold">
           العودة للرئيسية
         </Button>
-      </div>
+      </Link>
     </div>
   );
 }
