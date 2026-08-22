@@ -39,3 +39,26 @@ export const createChapter = async (req: any, res: Response) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const updateChapter = async (req: any, res: Response) => {
+  const { id } = req.params;
+  const { title, content, order } = req.body;
+  try {
+    const chapter = await prisma.chapter.findUnique({
+      where: { id },
+      include: { novel: true }
+    });
+    if (!chapter) return res.status(404).json({ message: 'Chapter not found' });
+    if (chapter.novel.authorId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    const updatedChapter = await prisma.chapter.update({
+      where: { id },
+      data: { title, content, order: Number(order) }
+    });
+    res.json(updatedChapter);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
