@@ -1,0 +1,4 @@
+node_modules
+.envgit add .
+git commit -m "Add persistent login, fast profile, and delete novel feature"
+git push origin main
