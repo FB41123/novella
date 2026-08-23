@@ -25,6 +25,7 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { AdminImportNovel } from "./pages/AdminImportNovel";
 import { ExternalNovelDetails } from "./pages/ExternalNovelDetails";
 import { EditExternalNovel } from "./pages/EditExternalNovel"; // بنسوي هذي الصفحة في الخطوة الرابعة
+import { MoreMenu } from "./pages/MoreMenu";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/profile/:id" element={<Profile />} />                  
                     <Route path="/messages" element={<Messages />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/more" element={<MoreMenu />} />
                     
                     {/* 🚀 مسارات الإدارة العليا فقط (Admin) */}
                     <Route element={<RoleGuard allowedRoles={['admin']} />}>
