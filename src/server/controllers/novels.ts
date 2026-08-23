@@ -9,10 +9,19 @@ export const getAllNovels = async (req: any, res: any) => {
       where: { 
         isPublished: true // 🚀 هذا السطر يمنع ظهور المسودات في الرئيسية!
       },
-      include: { author: true },
+      include: { 
+        author: true,
+        _count: { select: { novelLikes: true } }
+      },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(novels);
+    
+    const formatted = novels.map((n: any) => ({
+      ...n,
+      likes: n._count?.novelLikes || 0
+    }));
+    
+    res.json(formatted);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -23,17 +32,25 @@ export const getNovelById = async (req: any, res: any) => {
     const { id } = req.params;
     const prismaAny = prisma as any;
     
+    // 🚀 زيادة عدد المشاهدات بواحد في كل مرة يتم فيها فتح الرواية
+    await prismaAny.novel.update({
+      where: { id },
+      data: { views: { increment: 1 } }
+    }).catch(() => {}); // نتجاهل الخطأ إذا الرواية غير موجودة لنتعامل معه تحت
+
     const novel = await prismaAny.novel.findUnique({
       where: { id },
       include: { 
         author: true,
         chapters: true,
         characters: true,
-        // 🚀 السطر السحري لجلب التعليقات وصور أصحابها ترتيباً من الأحدث للأقدم
         comments: {
           include: { user: true },
           orderBy: { createdAt: 'desc' }
-        }
+        },
+        novelLikes: true, // نجلب اللايكات عشان الفرونت اند يقدر يعرف إذا المستخدم الحالي عامل لايك
+        favoritedBy: true, // ونفس الشيء للمفضلة
+        _count: { select: { novelLikes: true } }
       }
     });
 
@@ -41,7 +58,10 @@ export const getNovelById = async (req: any, res: any) => {
       return res.status(404).json({ message: "الرواية غير موجودة" });
     }
 
-    res.json(novel);
+    res.json({
+      ...novel,
+      likes: novel._count?.novelLikes || 0
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

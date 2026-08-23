@@ -4,7 +4,7 @@ import { getNovelById } from "@/services/novels";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Clock, Heart, ArrowRight, List, Users, User, MessageSquare, Loader2, BookmarkPlus, BookmarkCheck, ThumbsUp, Send, ExternalLink } from "lucide-react"; // أضفنا أيقونة ExternalLink
+import { BookOpen, Clock, Heart, ArrowRight, List, Users, User, MessageSquare, Loader2, BookmarkPlus, BookmarkCheck, ThumbsUp, Send, ExternalLink, Eye } from "lucide-react";
 
 export function NovelDetails() {
   const { id } = useParams();
@@ -33,6 +33,13 @@ export function NovelDetails() {
           setNovel(data);
           setComments(data.comments || []);
           
+          if (user && data.novelLikes) {
+            setIsLiked(data.novelLikes.some((like: any) => like.userId === user.id));
+          }
+          if (user && data.favoritedBy) {
+            setIsFavorite(data.favoritedBy.some((fav: any) => fav.userId === user.id));
+          }
+
           // ✨ ذكاء الكود: إذا كانت الرواية خارجية، نجعل تبويب التعليقات هو الافتراضي
           if (data.sourceUrl || data.link) {
             setActiveTab("comments");
@@ -45,7 +52,7 @@ export function NovelDetails() {
       }
     };
     fetchNovel();
-  }, [id]);
+  }, [id, user]);
 
   const handleFavorite = async () => {
     if (!user) return alert("❌ يرجى تسجيل الدخول أولاً للإضافة إلى المفضلة.");
@@ -81,6 +88,10 @@ export function NovelDetails() {
       if (res.ok) {
         const data = await res.json();
         setIsLiked(data.isLiked);
+        setNovel((prev: any) => ({
+          ...prev,
+          likes: data.isLiked ? (prev.likes || 0) + 1 : Math.max(0, (prev.likes || 1) - 1)
+        }));
       }
     } catch (error) {
       alert("❌ حدث خطأ في الاتصال بالسيرفر.");
@@ -151,10 +162,19 @@ export function NovelDetails() {
           <div className="flex-1 pt-4 md:pt-28 text-center md:text-right">
             <h1 className="text-3xl md:text-5xl font-black text-primary mb-4 leading-tight">{novel.title}</h1>
             
-            <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-6 text-sm font-bold text-muted-foreground">
+            <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-4 text-sm font-bold text-muted-foreground">
               <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-md border border-blue-100"><User className="w-4 h-4" /> {novel.author?.username || "مجهول"}</span>
               <span className="flex items-center gap-1.5 bg-secondary/30 text-primary px-3 py-1.5 rounded-md"><BookOpen className="w-4 h-4" /> {novel.tags}</span>
               <span className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-md border border-green-100"><Clock className="w-4 h-4" /> {novel.status === "completed" ? "مكتملة" : "مستمرة"}</span>
+            </div>
+
+            <div className="flex justify-center md:justify-start items-center gap-3 mb-6">
+              <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary/30 px-3 py-1.5 rounded-lg border border-primary/5 font-bold">
+                <Eye className="w-4 h-4" /> {novel.views || 0} مشاهدة
+              </span>
+              <span className="flex items-center gap-1.5 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 font-bold">
+                <Heart className="w-4 h-4 fill-current" /> {novel.likes || 0} إعجاب
+              </span>
             </div>
 
             {/* الأزرار التفاعلية */}

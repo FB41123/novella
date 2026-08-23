@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, User, Clock, Globe } from "lucide-react";
+import { BookOpen, User, Clock, Globe, Heart, Eye } from "lucide-react";
 
 export function Home() {
   const [novels, setNovels] = useState<any[]>([]);
@@ -58,7 +58,7 @@ export function Home() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 px-1 md:px-0">
           {novels.map((novel) => (
             <Link key={novel.id} to={novel.sourceUrl ? `/external-novel/${novel.id}` : `/novel/${novel.id}`}>
-              <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 border-primary/10 group cursor-pointer h-full flex flex-col bg-card rounded-lg md:rounded-2xl">
+              <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 border-primary/10 group cursor-pointer h-full flex flex-col bg-card rounded-lg md:rounded-2xl relative">
                 
                 {/* الغلاف */}
                 <div className="aspect-[2/3] w-full relative overflow-hidden bg-secondary/10">
@@ -82,13 +82,25 @@ export function Home() {
                     <p className="text-[11px] md:text-sm text-muted-foreground mb-2 md:mb-4 line-clamp-2 leading-tight md:leading-relaxed">{novel.description}</p>
                   </div>
                   
-                  {/* اسم الكاتب / المصدر */}
-                  <div className="flex items-center gap-1 md:gap-2 text-[9px] md:text-xs font-bold text-muted-foreground bg-secondary/20 p-1.5 md:p-2.5 rounded md:rounded-lg border border-primary/5 mt-auto">
-                    {novel.originalAuthor ? (
-                      <><Globe className="w-3 h-3 md:w-4 md:h-4 text-blue-500 flex-shrink-0" /> <span className="truncate">{novel.originalAuthor}</span></>
-                    ) : (
-                      <><User className="w-3 h-3 md:w-4 md:h-4 text-primary flex-shrink-0" /> <span className="truncate">{novel.author?.username || "الإدارة"}</span></>
-                    )}
+                  <div className="flex flex-col gap-2 mt-auto">
+                    {/* المشاهدات والاعجابات */}
+                    <div className="flex items-center gap-3 text-[10px] md:text-xs font-bold text-muted-foreground">
+                      <span className="flex items-center gap-1 bg-secondary/30 px-2 py-1 rounded-md border border-primary/5">
+                        <Eye className="w-3 h-3 md:w-3.5 md:h-3.5" /> {novel.views || 0}
+                      </span>
+                      <span className="flex items-center gap-1 bg-red-50 text-red-600 px-2 py-1 rounded-md border border-red-100">
+                        <Heart className="w-3 h-3 md:w-3.5 md:h-3.5 fill-current" /> {novel.likes || 0}
+                      </span>
+                    </div>
+
+                    {/* اسم الكاتب / المصدر */}
+                    <div className="flex items-center gap-1 md:gap-2 text-[9px] md:text-xs font-bold text-muted-foreground bg-secondary/20 p-1.5 md:p-2.5 rounded md:rounded-lg border border-primary/5">
+                      {novel.originalAuthor ? (
+                        <><Globe className="w-3 h-3 md:w-4 md:h-4 text-blue-500 flex-shrink-0" /> <span className="truncate">{novel.originalAuthor}</span></>
+                      ) : (
+                        <><User className="w-3 h-3 md:w-4 md:h-4 text-primary flex-shrink-0" /> <span className="truncate">{novel.author?.username || "الإدارة"}</span></>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
 

@@ -78,9 +78,16 @@ export const getUserNovels = async (req: any, res: any) => {
     const prismaAny = prisma as any;
     const novels = await prismaAny.novel.findMany({
       where: { authorId: id },
+      include: { _count: { select: { novelLikes: true } } },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(novels);
+    
+    const formatted = novels.map((n: any) => ({
+      ...n,
+      likes: n._count?.novelLikes || 0
+    }));
+    
+    res.json(formatted);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
