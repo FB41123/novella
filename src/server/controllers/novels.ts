@@ -7,10 +7,10 @@ export const getAllNovels = async (req: any, res: any) => {
     const prismaAny = prisma as any;
     const novels = await prismaAny.novel.findMany({
       where: { 
-        isPublished: true // 🚀 هذا السطر يمنع ظهور المسودات في الرئيسية!
+        isPublished: true
       },
       include: { 
-        author: true,
+        author: { select: { id: true, username: true, avatar: true } },
         _count: { select: { novelLikes: true } }
       },
       orderBy: { createdAt: 'desc' }
@@ -21,6 +21,8 @@ export const getAllNovels = async (req: any, res: any) => {
       likes: n._count?.novelLikes || 0
     }));
     
+    // 🚀 cache للرئيسية لمدة دقيقتين (تتجدد تلقائياً عند إضافة رواية جديدة)
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=60');
     res.json(formatted);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -32,18 +34,23 @@ export const getNovelById = async (req: any, res: any) => {
     const { id } = req.params;
     const prismaAny = prisma as any;
     
+    // 🚀 تحسين: نجلب فقط count وما إذا كان المستخدم الحالي عامل لايك أو مفضلة
+    // بدلاً من جلب كل صفوف الـ likes (ممكن تكون آلاف الصفوف!)
+    const userId = req.headers['x-user-id'] as string | undefined;
+    
     const novel = await prismaAny.novel.findUnique({
       where: { id },
       include: { 
-        author: true,
-        chapters: true,
+        author: { select: { id: true, username: true, avatar: true, role: true } },
+        chapters: { orderBy: { order: 'asc' }, select: { id: true, title: true, order: true, createdAt: true } },
         characters: true,
         comments: {
-          include: { user: true },
-          orderBy: { createdAt: 'desc' }
+          include: { user: { select: { id: true, username: true, avatar: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: 50 // نجلب أحدث 50 تعليق فقط
         },
-        novelLikes: true, 
-        favoritedBy: true, 
+        novelLikes: userId ? { where: { userId }, select: { userId: true } } : false,
+        favoritedBy: userId ? { where: { userId }, select: { userId: true } } : false,
         _count: { select: { novelLikes: true } }
       }
     });

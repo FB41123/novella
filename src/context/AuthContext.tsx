@@ -30,9 +30,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+
+        // 🚀 تحسين: جرب تحميل بيانات المستخدم من الكاش أولاً فوراً
+        const cachedUser = localStorage.getItem('cached_user');
+        if (cachedUser) {
+          try {
+            setUser(JSON.parse(cachedUser) as User);
+          } catch {}
+        }
+
+        // ثم تحقق من السيرفر في الخلفية لتحديث البيانات
         const currentUser = await authService.getCurrentUser();
         if (currentUser) {
           setUser(currentUser as User);
+          localStorage.setItem('cached_user', JSON.stringify(currentUser));
+        } else {
+          // التوكن منتهي أو غير صالح
+          localStorage.removeItem('cached_user');
+          setUser(null);
         }
       } catch (error) {
         console.error("Failed to fetch user", error);
@@ -43,12 +63,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, []);
 
-  // 2. إصلاح دالة الدخول لتقبل كلمة المرور الحقيقية
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const { user: loggedInUser, token } = await authService.login(email, password);
       localStorage.setItem("token", token);
+      localStorage.setItem("cached_user", JSON.stringify(loggedInUser));
       setUser(loggedInUser as User);
     } catch (error) {
       console.error("Login failed", error);
@@ -58,12 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 3. إضافة دالة التسجيل الجديدة كلياً
   const register = async (data: any) => {
     setIsLoading(true);
     try {
       const { user: newUser, token } = await authService.register(data);
       localStorage.setItem("token", token);
+      localStorage.setItem("cached_user", JSON.stringify(newUser));
       setUser(newUser as User);
     } catch (error) {
       console.error("Registration failed", error);
@@ -75,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     authService.logout();
+    localStorage.removeItem("cached_user");
     setUser(null);
   };
 

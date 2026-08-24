@@ -29,23 +29,28 @@ export function NovelDetails() {
     const fetchNovel = async () => {
       try {
         if (id) {
-          const data: any = await getNovelById(id);
+          // 🚀 تحسين: نرسل userId في الـ header بدلاً من جلب كل صفوف الـ likes
+          const token = localStorage.getItem("token");
+          const headers: Record<string, string> = {};
+          if (token) headers["Authorization"] = `Bearer ${token}`;
+          if (user?.id) headers["x-user-id"] = user.id;
+          
+          const res = await fetch(`https://novella-api.onrender.com/api/novels/${id}`, { headers });
+          if (!res.ok) throw new Error("فشل جلب الرواية");
+          const data = await res.json();
+          
           setNovel(data);
           setComments(data.comments || []);
           
-          if (user && data.novelLikes) {
-            setIsLiked(data.novelLikes.some((like: any) => like.userId === user.id));
-          }
-          if (user && data.favoritedBy) {
-            setIsFavorite(data.favoritedBy.some((fav: any) => fav.userId === user.id));
-          }
+          // الآن novelLikes و favoritedBy يحتويان فقط على سجل المستخدم الحالي (أو فارغ)
+          setIsLiked(!!(data.novelLikes && data.novelLikes.length > 0));
+          setIsFavorite(!!(data.favoritedBy && data.favoritedBy.length > 0));
 
-          // ✨ ذكاء الكود: إذا كانت الرواية خارجية، نجعل تبويب التعليقات هو الافتراضي
           if (data.sourceUrl || data.link) {
             setActiveTab("comments");
           }
 
-          // نظام مشاهدات ذكي: عدم احتساب مشاهدات الكاتب لنفسه + عدم التكرار للزوار
+          // نظام مشاهدات ذكي
           const viewedKey = `viewed_${id}`;
           const isAuthor = user?.id === data.authorId;
           const hasViewed = localStorage.getItem(viewedKey);

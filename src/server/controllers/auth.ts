@@ -70,9 +70,16 @@ export const login = async (req: Request, res: Response) => {
 
 export const me = async (req: any, res: Response) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    // 🚀 تحسين: بيانات المستخدم موجودة في التوكن، لا داعي لطلب DB في كل مرة
+    // نرجع للـ DB فقط لجلب الـ avatar لأنه لا يُخزن في JWT
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, username: true, email: true, role: true, avatar: true }
+    });
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ id: user.id, username: user.username, email: user.email, role: user.role, avatar: user.avatar });
+    
+    res.set('Cache-Control', 'private, max-age=60'); // cache لمدة دقيقة
+    res.json(user);
   } catch (error: any) {
     console.error("💥 خطأ في جلب بيانات المستخدم:", error);
     res.status(500).json({ message: error.message || 'Server error' });

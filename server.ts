@@ -73,6 +73,11 @@ async function startServer() {
     res.json({ message: "Novella API is running successfully! 🚀" });
   });
 
+  // 🚀 Keep-Alive health check - يُستخدم لمنع Render من تنويم السيرفر
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: Date.now() });
+  });
+
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });

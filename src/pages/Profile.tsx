@@ -23,9 +23,16 @@ export function Profile() {
       setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const userRes = await fetch(`https://novella-api.onrender.com/api/users/${id}`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
+        
+        // 🚀 تحسين: إرسال طلبي المستخدم والروايات بالتوازي معاً بدلاً من واحد تلو الآخر
+        const [userRes, novelsRes] = await Promise.all([
+          fetch(`https://novella-api.onrender.com/api/users/${id}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          }),
+          fetch(`https://novella-api.onrender.com/api/users/${id}/novels`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          })
+        ]);
 
         if (!userRes.ok) {
           setProfileUser(null);
@@ -38,16 +45,13 @@ export function Profile() {
 
         if (userData.role !== 'writer') setActiveTab("posts");
 
-        if (userData.role === 'writer') {
-          const novelsRes = await fetch(`https://novella-api.onrender.com/api/users/${id}/novels`, {
-            headers: { "Authorization": `Bearer ${token}` }
-          });
-          if (novelsRes.ok) {
-            const hisNovels = await novelsRes.json();
-            setUserNovels(hisNovels);
-          } else {
-            setUserNovels([]);
-          }
+        if (novelsRes.ok) {
+          const hisNovels = await novelsRes.json();
+          // عرض الروايات المنشورة فقط في الملف الشخصي العام
+          const published = hisNovels.filter((n: any) => n.isPublished);
+          setUserNovels(published);
+        } else {
+          setUserNovels([]);
         }
       } catch (error) {
         console.error("خطأ:", error);
