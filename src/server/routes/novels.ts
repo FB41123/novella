@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllNovels, getNovelById, createNovel, updateNovel, deleteNovel, togglePublishStatus ,getAdminNovels} from '../controllers/novels';
+import { getAllNovels, getNovelById, createNovel, updateNovel, deleteNovel, togglePublishStatus ,getAdminNovels, incrementNovelViews} from '../controllers/novels';
 // 👈 أضفنا استيراد الحارس هنا (تأكد من حرف s في middlewares)
 import { authenticateToken } from '../middlewares/auth'; 
 import { togglePublish } from '../controllers/novels'; // مع بقية الدوال
@@ -8,6 +8,8 @@ const router = Router();
 // 🟢 مسارات عامة (مسموحة للجميع بدون تسجيل دخول)
 router.get('/', getAllNovels);
 router.get('/:id', getNovelById);
+router.post('/:id/view', incrementNovelViews);
+
 // أضفه هنا قبل مسار الـ ID
 router.get('/admin/all', authenticateToken, getAdminNovels);
 router.patch('/:id/publish', authenticateToken, togglePublish);

@@ -32,12 +32,6 @@ export const getNovelById = async (req: any, res: any) => {
     const { id } = req.params;
     const prismaAny = prisma as any;
     
-    // 🚀 زيادة عدد المشاهدات بواحد في كل مرة يتم فيها فتح الرواية
-    await prismaAny.novel.update({
-      where: { id },
-      data: { views: { increment: 1 } }
-    }).catch(() => {}); // نتجاهل الخطأ إذا الرواية غير موجودة لنتعامل معه تحت
-
     const novel = await prismaAny.novel.findUnique({
       where: { id },
       include: { 
@@ -48,8 +42,8 @@ export const getNovelById = async (req: any, res: any) => {
           include: { user: true },
           orderBy: { createdAt: 'desc' }
         },
-        novelLikes: true, // نجلب اللايكات عشان الفرونت اند يقدر يعرف إذا المستخدم الحالي عامل لايك
-        favoritedBy: true, // ونفس الشيء للمفضلة
+        novelLikes: true, 
+        favoritedBy: true, 
         _count: { select: { novelLikes: true } }
       }
     });
@@ -62,6 +56,22 @@ export const getNovelById = async (req: any, res: any) => {
       ...novel,
       likes: novel._count?.novelLikes || 0
     });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const incrementNovelViews = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const prismaAny = prisma as any;
+    
+    await prismaAny.novel.update({
+      where: { id },
+      data: { views: { increment: 1 } }
+    });
+    
+    res.json({ success: true });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

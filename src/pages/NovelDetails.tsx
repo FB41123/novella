@@ -44,6 +44,21 @@ export function NovelDetails() {
           if (data.sourceUrl || data.link) {
             setActiveTab("comments");
           }
+
+          // نظام مشاهدات ذكي: عدم احتساب مشاهدات الكاتب لنفسه + عدم التكرار للزوار
+          const viewedKey = `viewed_${id}`;
+          const isAuthor = user?.id === data.authorId;
+          const hasViewed = localStorage.getItem(viewedKey);
+          
+          if (!isAuthor && !hasViewed) {
+             fetch(`https://novella-api.onrender.com/api/novels/${id}/view`, { method: "POST" })
+               .then(res => {
+                  if (res.ok) {
+                     localStorage.setItem(viewedKey, "true");
+                     setNovel((prev: any) => ({ ...prev, views: (prev.views || 0) + 1 }));
+                  }
+               }).catch(e => console.error(e));
+          }
         }
       } catch (error) {
         console.error("خطأ:", error);
